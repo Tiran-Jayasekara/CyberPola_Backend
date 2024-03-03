@@ -42,6 +42,10 @@ const FarmerSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        farmerImg: {
+            type: String,
+            required: true,
+        },
         shopType: {
             type: String,
             required: true,
