@@ -131,3 +131,44 @@ module.exports.deleteItem = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 }
+
+//Pagination
+module.exports.getSelectetItems = async (req, res) => {
+    try {
+        const pageNumber = req.params.number || 1; // Default to page 1 if no page number is provided
+        const perPage = 10; // Number of items per page
+        const skip = (pageNumber - 1) * perPage;
+
+        const allItems = await Item.find({}).skip(skip).limit(perPage);
+
+        if (allItems.length > 0) {
+            res.status(200).json({ message: "All Items", allItems });
+        } else {
+            res.status(200).json({ message: "Couldn't find any Items" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+// getItemsBySearch
+module.exports.getItemsBySearch = async (req, res) => {
+    try {
+        const search = req.params.search;
+        const items = await Item.find({
+            $or: [
+                { description: { $regex: search, $options: 'i' } },
+                { itemName: { $regex: search, $options: 'i' } }
+            ],
+        });
+        if (items.length > 0) {
+            res.status(200).json({ message: "Items", items });
+        } else {
+            res
+                .status(200)
+                .json({ message: "Couldn't find any Items by this Search" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
