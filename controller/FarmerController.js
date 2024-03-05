@@ -21,14 +21,15 @@ module.exports.addFarmer = async (req, res) => {
         password: Joi.string().required(),
         shopName: Joi.string().required(),
         shopImg: Joi.string().required(),
+        farmerImg: Joi.string().required(),
         shopType: Joi.string().required(),
         location: Joi.string().required(),
     });
 
     try {
-        const { firstName, lastName, address, nic, mobile, email, userName, password, shopName, shopImg, shopType, location } = req.body;
+        const { firstName, lastName, address, nic, mobile, email, userName, password, shopName, shopImg, farmerImg, shopType, location } = req.body;
         const { error } = schema.validate({
-            firstName, lastName, address, nic, mobile, email, userName, password, shopName, shopImg, shopType, location
+            firstName, lastName, address, nic, mobile, email, userName, password, shopName, shopImg, farmerImg, shopType, location
         });
         if (error) {
             res.status(400).json({ message: error.message });
@@ -40,7 +41,7 @@ module.exports.addFarmer = async (req, res) => {
 
                 const hash = await bcrypt.hash(password, 10);
                 const farmer = await Farmer.create({
-                    firstName, lastName, address, nic, mobile, email, userName, password, shopName, shopImg, shopType, location
+                    firstName, lastName, address, nic, mobile, email, userName, password: hash, shopName, shopImg, farmerImg, shopType, location
                 });
 
                 if (farmer) {
@@ -84,18 +85,19 @@ module.exports.updateFarmer = async (req, res) => {
         email: Joi.string(),
         shopType: Joi.string().required(),
         shopImg: Joi.string().required(),
+        farmerImg: Joi.string().required(),
         location: Joi.string().required(),
     });
 
     try {
-        const { _id, firstName, lastName, address, nic, mobile, email, shopType, shopImg, location } = req.body;
+        const { _id, firstName, lastName, address, nic, mobile, email, shopType, shopImg, farmerImg, location } = req.body;
         const { error } = schema.validate({
-            _id, firstName, lastName, address, nic, mobile, email, shopType, shopImg, location
+            _id, firstName, lastName, address, nic, mobile, email, shopType, shopImg, farmerImg, location
         });
         if (error) {
             res.status(400).json({ message: error.message });
         } else {
-            const updateFarmer = await Farmer.findOneAndUpdate({ _id, _id }, { firstName, lastName, address, nic, mobile, email, shopType, shopImg, location }, { new: true });
+            const updateFarmer = await Farmer.findOneAndUpdate({ _id, _id }, { firstName, lastName, address, nic, mobile, email, shopType, shopImg, farmerImg, location }, { new: true });
             if (updateFarmer) {
                 res.status(200).json({ message: "Farmer Update Successfull", updateFarmer });
             } else {
@@ -145,5 +147,34 @@ module.exports.getFarmerWithItems = async (req, res) => {
         throw error;
     }
 }
+
+//Farmer Login
+module.exports.FarmerLogin = async (req, res) => {
+    try {
+        const { userName, password } = req.body;
+        const checkFarmer = await Farmer.findOne({ userName });
+        if (checkFarmer) {
+            const match = await bcrypt.compare(password, checkFarmer.password);
+            if (match) {
+                const token = jwt.sign(
+                    {
+                        id: checkFarmer._id,
+                        nic: checkFarmer?.nic,
+                    },
+                    "default_secret_key",
+                    { expiresIn: "1d" }
+                );
+
+                res.status(200).json({ message: "Login Success", checkFarmer, token });
+            } else {
+                res.status(200).json({ message: "Password Is Wrong" });
+            }
+        } else {
+            res.status(200).json({ message: "User Name Not Register" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
 
 
