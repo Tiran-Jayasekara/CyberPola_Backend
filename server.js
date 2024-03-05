@@ -1,6 +1,4 @@
 const express = require("express");
-// const Product = require("./models/ProductModels");
-
 
 const app = express();
 const port = 3001;
@@ -15,8 +13,10 @@ const farmerRouter = require("./route/farmer");
 const itemRouter = require("./route/item");
 const userRouter = require("./route/user");
 const cartRouter = require("./route/cart");
+const farmerPdfUplode = require("./route/farmerRegister")
 
 app.use("/farmer", farmerRouter);
+app.use("/farmerPdfUplode", farmerPdfUplode);
 app.use("/item", itemRouter);
 app.use("/user", userRouter);
 app.use("/cart", cartRouter);
