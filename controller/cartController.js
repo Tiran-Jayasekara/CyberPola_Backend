@@ -62,3 +62,20 @@ module.exports.getAllCartItemsByUser = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 }
+
+// Delete Item From Cart
+module.exports.DeleteItemFromCart = async (req, res) => {
+    try {
+        const itemId = req.params.itemId;
+        const deleteItem = await Cart.findByIdAndDelete(itemId);
+        if (deleteItem) {
+            res.status(200).json({ message: "Item Remove from Cart", deleteItem });
+        } else {
+            res
+                .status(200)
+                .json({ message: "Couldn't find any Items" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
