@@ -83,3 +83,18 @@ module.exports.UserLogin = async (req, res) => {
     }
 };
 
+
+//get User Data
+module.exports.GetUserData = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const userData = await User.find({ _id: userId });
+        if (userData) {
+            res.status(200).json({ message: "This User is userData", userData });
+        } else {
+            res.status(200).json({ message: "No Any User Data" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: error });
+    }
+}
